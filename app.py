@@ -66,15 +66,16 @@ def is_valid_email(email):
 
 def send_email(to_email, subject, html_body):
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = GMAIL_ADDRESS
-        msg["To"] = to_email
-        msg.attach(MIMEText(html_body, "html", "utf-8"))
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_ADDRESS, to_email, msg.as_string())
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        message = Mail(
+            from_email=GMAIL_ADDRESS,
+            to_emails=to_email,
+            subject=subject,
+            html_content=html_body
+        )
+        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+        sg.send(message)
         return True
     except Exception as e:
         print(f"Failed to send to {to_email}: {e}")
