@@ -90,6 +90,8 @@ def index():
     return render_template("index.html")
 
 
+# Run init_db when the module loads (works with both gunicorn and python app.py)
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
