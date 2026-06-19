@@ -1,0 +1,70 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Subscribers</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <main class="container admin-container">
+
+    <!-- Header -->
+    <div class="admin-header">
+      <div>
+        <p class="eyebrow">Admin</p>
+        <h1 class="headline" style="font-size: 2rem;">Subscribers</h1>
+      </div>
+      <a href="/admin/logout" class="logout-link">Log out</a>
+    </div>
+
+    <!-- Summary counts -->
+    <div class="admin-counts">
+      <div class="count-card">
+        <p class="count-number">{{ counts.get('sketches', 0) }}</p>
+        <p class="count-label">Sketches</p>
+      </div>
+      <div class="count-card count-card--muted">
+        <p class="count-number">{{ counts.get('official', 0) }}</p>
+        <p class="count-label">Official Only</p>
+      </div>
+      <div class="count-card count-card--total">
+        <p class="count-number">{{ subscribers | length }}</p>
+        <p class="count-label">Total</p>
+      </div>
+    </div>
+
+    <!-- Subscriber table -->
+    {% if subscribers %}
+    <div class="table-wrap">
+      <table class="subscriber-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>List</th>
+            <th>Signed up</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in subscribers %}
+          <tr>
+            <td>{{ row['email'] }}</td>
+            <td>
+              <span class="badge {% if row['list'] == 'sketches' %}badge--sketches{% else %}badge--official{% endif %}">
+                {{ row['list'].capitalize() }}
+              </span>
+            </td>
+            <td class="date-cell">{{ row['created_at'][:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="empty-state">No subscribers yet.</p>
+    {% endif %}
+
+  </main>
+</body>
+</html>

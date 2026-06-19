@@ -218,3 +218,149 @@ body {
   .input-row { flex-direction: column; }
   .input-row button { width: 100%; }
 }
+
+
+/* ── Admin Styles ── */
+
+.admin-container {
+  max-width: 720px;
+  padding: 2rem 1rem;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.logout-link {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.9rem;
+  border-radius: 5px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.logout-link:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+/* Count cards */
+.admin-counts {
+  display: flex;
+  gap: 1rem;
+}
+
+.count-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+
+.count-card--muted {
+  background: var(--surface-alt);
+  border-color: #222;
+}
+
+.count-card--total {
+  border-color: var(--accent);
+}
+
+.count-number {
+  font-size: 2rem;
+  font-family: var(--font-display);
+  color: var(--text);
+  line-height: 1;
+}
+
+.count-card--total .count-number {
+  color: var(--accent);
+}
+
+.count-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.4rem;
+}
+
+/* Table */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.subscriber-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.subscriber-table thead {
+  background: var(--surface);
+}
+
+.subscriber-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.subscriber-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: var(--text);
+}
+
+.subscriber-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.subscriber-table tbody tr:hover td {
+  background: var(--surface);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.badge--sketches {
+  background: rgba(200, 255, 0, 0.1);
+  color: var(--accent);
+}
+
+.badge--official {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+.date-cell {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+}
