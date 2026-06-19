@@ -96,6 +96,26 @@ def build_email_html(link, unsubscribe_url):
 </div>
 """
 
+def build_welcome_email(list_type):
+    list_name = "Sketches" if list_type == "sketches" else "Official Releases"
+    return f"""
+<div style="font-family: Georgia, serif; max-width: 540px; margin: 0 auto; padding: 2rem; background: #0d0d0d; color: #e8e8e8;">
+  <p style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: #c8ff00; margin-bottom: 1.5rem;">Welcome</p>
+  <h1 style="font-size: 2rem; font-weight: normal; line-height: 1.2; margin-bottom: 1.5rem; color: #e8e8e8;">You're in.</h1>
+  <p style="font-size: 1rem; color: #aaa; line-height: 1.7; margin-bottom: 2rem;">
+    Thanks for subscribing to the <strong style="color: #e8e8e8;">{list_name}</strong> list.
+    I'll be in touch when something new drops.
+  </p>
+  <p style="font-size: 0.85rem; color: #aaa; line-height: 1.7; margin-bottom: 2rem;">
+    To make sure you keep getting emails, add this address to your contacts.
+  </p>
+  <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
+  <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
+    You signed up for {list_name} updates from Douglas Aldridge.
+  </p>
+</div>
+"""
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -113,10 +133,12 @@ def index():
                 (email, list_type)
             )
             conn.commit()
+            welcome_html = build_welcome_email(list_type)
+            send_email(email, "You're subscribed.", welcome_html)
             if list_type == "sketches":
-                flash("You're on the Sketches list - expect raw drops in your inbox.", "success")
+                flash("You're on the Sketches list. A confirmation email is on its way — if you don't see it, check your spam folder and mark it as safe.", "success")
             else:
-                flash("You're on the Official Releases list - I'll hit you when it's official.", "success")
+                flash("You're on the Official Releases list. A confirmation email is on its way — if you don't see it, check your spam folder and mark it as safe.", "success")
         except sqlite3.IntegrityError:
             flash("You're already subscribed to that list.", "info")
         finally:
