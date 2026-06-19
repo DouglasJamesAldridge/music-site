@@ -21,7 +21,6 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
-    conn.execute("DROP TABLE IF EXISTS subscribers")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
