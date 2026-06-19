@@ -364,3 +364,85 @@ body {
   text-align: center;
   padding: 2rem;
 }
+
+
+/* ── Send Panel ── */
+
+.send-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.send-panel-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.send-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.send-select {
+  padding: 0.8rem 1rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+}
+
+.send-select:focus {
+  border-color: var(--accent);
+}
+
+.send-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.8rem 1rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  outline: none;
+}
+
+.send-input:focus {
+  border-color: var(--accent);
+}
+
+.send-input::placeholder {
+  color: var(--text-muted);
+}
+
+.send-btn {
+  padding: 0.8rem 1.4rem;
+  background: var(--accent);
+  color: #0d0d0d;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.send-btn:hover {
+  background: var(--accent-dim);
+}
