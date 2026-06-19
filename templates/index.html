@@ -7,12 +7,17 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
+
   <main class="container">
+
+    <!-- Hero -->
     <header class="hero">
       <p class="eyebrow">New music incoming</p>
       <h1 class="headline">Be the first to hear it.</h1>
-      <p class="subline">Drop your email and I'll hit you when I release new music — no spam, just drops.</p>
+      <p class="subline">Choose how you want to stay in the loop.</p>
     </header>
+
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="messages">
@@ -22,13 +27,73 @@
         </div>
       {% endif %}
     {% endwith %}
-    <form class="signup-form" method="POST" action="/">
-      <div class="input-row">
-        <input type="email" name="email" placeholder="your@email.com" required autocomplete="email" aria-label="Email address" />
-        <button type="submit">Notify me</button>
+
+    <!-- Signup Cards -->
+    <div class="cards">
+
+      <!-- Card 1: Sketches -->
+      <div class="card">
+        <div class="card-header">
+          <p class="card-label">Sketches</p>
+          <p class="card-freq">~Monthly</p>
+        </div>
+        <p class="card-desc">
+          Raw, unpolished ideas straight from the session.
+          You'll get these drops <em>plus</em> every official release.
+        </p>
+        <form method="POST" action="/">
+          <!-- Hidden input tells the server which list this form is for -->
+          <input type="hidden" name="list_type" value="sketches" />
+          <div class="input-row">
+            <input
+              type="email"
+              name="email"
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+              aria-label="Email for Sketches list"
+            />
+            <button type="submit">Join</button>
+          </div>
+        </form>
       </div>
-      <p class="fine-print">No spam. Unsubscribe anytime.</p>
-    </form>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <!-- Card 2: Official Releases -->
+      <div class="card card--muted">
+        <div class="card-header">
+          <p class="card-label">Official Releases</p>
+          <p class="card-freq">1–2× / year</p>
+        </div>
+        <p class="card-desc">
+          Only the finished work. No noise — just a message
+          when something real drops.
+        </p>
+        <form method="POST" action="/">
+          <input type="hidden" name="list_type" value="official" />
+          <div class="input-row">
+            <input
+              type="email"
+              name="email"
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+              aria-label="Email for Official Releases list"
+            />
+            <button type="submit" class="btn--muted">Join</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <p class="fine-print">No spam. Unsubscribe anytime.</p>
+
   </main>
+
 </body>
 </html>
