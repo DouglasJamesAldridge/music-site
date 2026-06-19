@@ -69,7 +69,7 @@ def send_email(to_email, subject, html_body):
         from sendgrid import SendGridAPIClient
         from sendgrid.helpers.mail import Mail
         message = Mail(
-            from_email=GMAIL_ADDRESS,
+            from_email="doug@dougaldridgemusic.com",
             to_emails=to_email,
             subject=subject,
             html_content=html_body
