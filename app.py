@@ -20,15 +20,8 @@ def get_db_connection():
 
 
 def init_db():
-    """
-    Create the subscribers table with a 'list' column to track
-    which list each person signed up for:
-      'sketches' = monthly drops + official releases
-      'official' = official releases only
-    The UNIQUE constraint is on (email + list) so the same email
-    can't appear twice on the same list.
-    """
     conn = get_db_connection()
+    conn.execute("DROP TABLE IF EXISTS subscribers")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
