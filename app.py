@@ -3,6 +3,7 @@ import re
 import os
 import sqlite3
 import secrets
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
@@ -63,6 +64,18 @@ def init_db():
             email      TEXT NOT NULL,
             drop_label TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS drops_log (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            drop_label   TEXT NOT NULL,
+            target_list  TEXT NOT NULL,
+            target_platform TEXT,
+            link         TEXT NOT NULL,
+            about_text   TEXT,
+            recipient_count INTEGER DEFAULT 0,
+            sent_at      DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
     # Safe migrations
@@ -326,6 +339,9 @@ def admin():
         feedback_rows = conn.execute(
             "SELECT email, drop_label, feedback, created_at FROM feedback ORDER BY created_at DESC"
         ).fetchall()
+        drops_log = conn.execute(
+            "SELECT drop_label, target_list, target_platform, link, about_text, recipient_count, sent_at FROM drops_log ORDER BY sent_at DESC"
+        ).fetchall()
         platform_groups = {}
         for row in subscribers:
             if row["list"] == "official":
@@ -342,7 +358,8 @@ def admin():
             platform_groups=platform_groups,
             platforms=STREAMING_PLATFORMS,
             new_subscribers=new_subscribers,
-            feedback_rows=feedback_rows
+            feedback_rows=feedback_rows,
+            drops_log=drops_log
         )
     if request.method == "POST":
         password = request.form.get("password", "")
@@ -382,9 +399,9 @@ def admin_send():
         subscribers = conn.execute(
             "SELECT email FROM subscribers WHERE list = ?", (target_list,)
         ).fetchall()
-    conn.close()
 
     if not subscribers:
+        conn.close()
         flash("No subscribers found for that selection.", "info")
         return redirect(url_for("admin"))
 
@@ -403,6 +420,15 @@ def admin_send():
             sent += 1
         else:
             failed += 1
+
+    # Log the drop
+    platform_label = target_platform if target_platform != "all" else "All platforms"
+    conn.execute(
+        "INSERT INTO drops_log (drop_label, target_list, target_platform, link, about_text, recipient_count) VALUES (?, ?, ?, ?, ?, ?)",
+        (drop_label, target_list, platform_label, link, about_text or None, sent)
+    )
+    conn.commit()
+    conn.close()
 
     if failed == 0:
         flash(f"Sent to {sent} subscriber{'s' if sent != 1 else ''}.", "success")

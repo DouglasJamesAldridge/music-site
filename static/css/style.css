@@ -819,3 +819,36 @@ body {
   border-radius: 4px;
   letter-spacing: 0.03em;
 }
+
+/* ── Archive section ── */
+
+.archive-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #333;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 1rem;
+}
+
+.archive-divider::before,
+.archive-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1e1e1e;
+}
+
+.archive-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+
+.archive-section:hover {
+  opacity: 1;
+}
