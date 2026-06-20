@@ -160,6 +160,13 @@ body {
   background: var(--border);
 }
 
+/* Form stack (wraps input row + platform row) */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 /* Input Row */
 .input-row {
   display: flex;
@@ -206,6 +213,46 @@ body {
 
 .input-row button.btn--muted:hover { background: #333; }
 
+/* Platform dropdown (subscriber page) */
+.platform-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.platform-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.platform-select {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  appearance: auto;
+  transition: border-color 0.2s;
+}
+
+.platform-select:focus {
+  border-color: var(--accent);
+}
+
+.platform-select--muted {
+  border-color: #1e1e1e;
+}
+
+.platform-select--muted:focus {
+  border-color: var(--text-muted);
+}
+
 /* Fine print */
 .fine-print {
   font-size: 0.78rem;
@@ -223,7 +270,7 @@ body {
 /* ── Admin Styles ── */
 
 .admin-container {
-  max-width: 720px;
+  max-width: 760px;
   padding: 2rem 1rem;
 }
 
@@ -359,6 +406,11 @@ body {
   font-size: 0.85rem;
 }
 
+.platform-cell {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
 .empty-state {
   color: var(--text-muted);
   text-align: center;
@@ -375,7 +427,7 @@ body {
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .send-panel-title {
@@ -384,6 +436,51 @@ body {
   letter-spacing: 0.1em;
   color: var(--text-muted);
   font-weight: 600;
+}
+
+/* About the Music box */
+.about-music-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.about-music-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.about-music-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: #0d0d0d;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  transition: border-color 0.2s;
+}
+
+.about-music-textarea:focus {
+  border-color: var(--accent-dim);
+}
+
+.about-music-textarea::placeholder {
+  color: #444;
+}
+
+.about-music-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .send-row {
@@ -402,6 +499,7 @@ body {
   font-family: var(--font-body);
   outline: none;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .send-select:focus {
@@ -445,4 +543,68 @@ body {
 
 .send-btn:hover {
   background: var(--accent-dim);
+}
+
+/* ── Platform Breakdown ── */
+
+.section-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.platform-breakdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.platform-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.platform-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.platform-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.platform-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.platform-count {
+  font-size: 1.1rem;
+  font-family: var(--font-display);
+  color: var(--accent);
+  font-weight: normal;
+}
+
+.platform-email-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.platform-email-list li {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  word-break: break-all;
 }

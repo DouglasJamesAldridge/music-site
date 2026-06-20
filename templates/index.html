@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subscribe — [Your Artist Name]</title>
+  <title>Subscribe — Douglas Aldridge Music</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
@@ -42,18 +42,28 @@
           You'll get these drops <em>plus</em> every official release.
         </p>
         <form method="POST" action="/">
-          <!-- Hidden input tells the server which list this form is for -->
           <input type="hidden" name="list_type" value="sketches" />
-          <div class="input-row">
-            <input
-              type="email"
-              name="email"
-              placeholder="your@email.com"
-              required
-              autocomplete="email"
-              aria-label="Email for Sketches list"
-            />
-            <button type="submit">Join</button>
+          <div class="form-stack">
+            <div class="input-row">
+              <input
+                type="email"
+                name="email"
+                placeholder="your@email.com"
+                required
+                autocomplete="email"
+                aria-label="Email for Sketches list"
+              />
+              <button type="submit">Join</button>
+            </div>
+            <div class="platform-row">
+              <label class="platform-label" for="platform-sketches">Where do you listen to official releases?</label>
+              <select name="platform" id="platform-sketches" class="platform-select">
+                <option value="">Select a platform…</option>
+                {% for p in platforms %}
+                  <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
         </form>
       </div>
@@ -75,16 +85,27 @@
         </p>
         <form method="POST" action="/">
           <input type="hidden" name="list_type" value="official" />
-          <div class="input-row">
-            <input
-              type="email"
-              name="email"
-              placeholder="your@email.com"
-              required
-              autocomplete="email"
-              aria-label="Email for Official Releases list"
-            />
-            <button type="submit" class="btn--muted">Join</button>
+          <div class="form-stack">
+            <div class="input-row">
+              <input
+                type="email"
+                name="email"
+                placeholder="your@email.com"
+                required
+                autocomplete="email"
+                aria-label="Email for Official Releases list"
+              />
+              <button type="submit" class="btn--muted">Join</button>
+            </div>
+            <div class="platform-row">
+              <label class="platform-label" for="platform-official">Where do you listen to music?</label>
+              <select name="platform" id="platform-official" class="platform-select platform-select--muted">
+                <option value="">Select a platform…</option>
+                {% for p in platforms %}
+                  <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
         </form>
       </div>

@@ -17,7 +17,6 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme")
 GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 
-<<<<<<< HEAD
 STREAMING_PLATFORMS = [
     "Spotify",
     "Apple Music",
@@ -30,8 +29,6 @@ STREAMING_PLATFORMS = [
     "Other / I'll use the link provided",
 ]
 
-=======
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
@@ -44,10 +41,7 @@ def init_db():
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             email      TEXT NOT NULL,
             list       TEXT NOT NULL CHECK(list IN ('sketches', 'official')),
-<<<<<<< HEAD
             platform   TEXT,
-=======
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(email, list)
         )
@@ -59,15 +53,12 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
-<<<<<<< HEAD
     # Add platform column if it doesn't exist (for existing databases)
     try:
         conn.execute("ALTER TABLE subscribers ADD COLUMN platform TEXT")
         conn.commit()
     except sqlite3.OperationalError:
         pass  # Column already exists
-=======
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
     conn.commit()
     conn.close()
 
@@ -109,7 +100,6 @@ def send_email(to_email, subject, html_body):
         print(f"Failed to send to {to_email}: {e}")
         return False
 
-<<<<<<< HEAD
 def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text=""):
     if drop_type == "sketches":
         eyebrow = "New Sketch"
@@ -141,24 +131,11 @@ def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text="")
   <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
   <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
     You're receiving this because you signed up for updates at dougaldridgemusicsignup.com.<br/>
-=======
-def build_email_html(link, unsubscribe_url):
-    return f"""
-<div style="font-family: Georgia, serif; max-width: 540px; margin: 0 auto; padding: 2rem; background: #0d0d0d; color: #e8e8e8;">
-  <p style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: #c8ff00; margin-bottom: 1.5rem;">New Drop</p>
-  <h1 style="font-size: 2rem; font-weight: normal; line-height: 1.2; margin-bottom: 1.5rem; color: #e8e8e8;">Something new just dropped.</h1>
-  <p style="font-size: 1rem; color: #aaa; line-height: 1.7; margin-bottom: 2rem;">A new sketch is up. Click below to listen.</p>
-  <a href="{link}" style="display: inline-block; background: #c8ff00; color: #0d0d0d; padding: 0.85rem 1.8rem; text-decoration: none; border-radius: 6px; font-weight: 700; font-family: sans-serif; font-size: 0.95rem;">Listen now</a>
-  <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
-  <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
-    You're receiving this because you signed up for updates.<br/>
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
     <a href="{unsubscribe_url}" style="color: #555; text-decoration: underline;">Unsubscribe</a>
   </p>
 </div>
 """
 
-<<<<<<< HEAD
 def build_welcome_email(list_type, platform=None):
     list_name = "Sketches" if list_type == "sketches" else "Official Releases"
     platform_note = ""
@@ -168,36 +145,21 @@ def build_welcome_email(list_type, platform=None):
     When a new release drops, we'll send you a <strong style="color: #e8e8e8;">{platform}</strong> link so it's ready right in your preferred app.
   </p>
 """
-=======
-def build_welcome_email(list_type):
-    list_name = "Sketches" if list_type == "sketches" else "Official Releases"
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
     return f"""
 <div style="font-family: Georgia, serif; max-width: 540px; margin: 0 auto; padding: 2rem; background: #0d0d0d; color: #e8e8e8;">
   <p style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: #c8ff00; margin-bottom: 1.5rem;">Welcome</p>
   <h1 style="font-size: 2rem; font-weight: normal; line-height: 1.2; margin-bottom: 1.5rem; color: #e8e8e8;">You're in.</h1>
-<<<<<<< HEAD
   <p style="font-size: 1rem; color: #aaa; line-height: 1.7; margin-bottom: 1rem;">
     Thanks for subscribing to the <strong style="color: #e8e8e8;">{list_name}</strong> list.
     I'll be in touch when something new drops.
   </p>
   {platform_note}
-=======
-  <p style="font-size: 1rem; color: #aaa; line-height: 1.7; margin-bottom: 2rem;">
-    Thanks for subscribing to the <strong style="color: #e8e8e8;">{list_name}</strong> list.
-    I'll be in touch when something new drops.
-  </p>
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
   <p style="font-size: 0.85rem; color: #aaa; line-height: 1.7; margin-bottom: 2rem;">
     To make sure you keep getting emails, add this address to your contacts.
   </p>
   <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
   <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
-<<<<<<< HEAD
     You signed up for {list_name} updates from Douglas Aldridge at dougaldridgemusicsignup.com.
-=======
-    You signed up for {list_name} updates from Douglas Aldridge.
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
   </p>
 </div>
 """
@@ -207,17 +169,13 @@ def index():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         list_type = request.form.get("list_type", "sketches")
-<<<<<<< HEAD
         platform = request.form.get("platform", "").strip()
 
-=======
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
         if list_type not in ("sketches", "official"):
             list_type = "sketches"
         if not is_valid_email(email):
             flash("That doesn't look like a valid email. Please try again.", "error")
             return redirect(url_for("index"))
-<<<<<<< HEAD
 
         conn = get_db_connection()
         try:
@@ -227,16 +185,6 @@ def index():
             )
             conn.commit()
             welcome_html = build_welcome_email(list_type, platform)
-=======
-        conn = get_db_connection()
-        try:
-            conn.execute(
-                "INSERT INTO subscribers (email, list) VALUES (?, ?)",
-                (email, list_type)
-            )
-            conn.commit()
-            welcome_html = build_welcome_email(list_type)
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
             send_email(email, "You're subscribed.", welcome_html)
             if list_type == "sketches":
                 flash("You're on the Sketches list. A confirmation email is on its way — if you don't see it, check your spam folder and mark it as safe.", "success")
@@ -247,11 +195,7 @@ def index():
         finally:
             conn.close()
         return redirect(url_for("index"))
-<<<<<<< HEAD
     return render_template("index.html", platforms=STREAMING_PLATFORMS)
-=======
-    return render_template("index.html")
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
 
 @app.route("/unsubscribe/<token>")
 def unsubscribe(token):
@@ -274,16 +218,11 @@ def admin():
     if session.get("admin_logged_in"):
         conn = get_db_connection()
         subscribers = conn.execute(
-<<<<<<< HEAD
             "SELECT email, list, platform, created_at FROM subscribers ORDER BY list, platform, created_at DESC"
-=======
-            "SELECT email, list, created_at FROM subscribers ORDER BY created_at DESC"
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
         ).fetchall()
         counts = conn.execute(
             "SELECT list, COUNT(*) as total FROM subscribers GROUP BY list"
         ).fetchall()
-<<<<<<< HEAD
         # Group official subscribers by platform
         platform_groups = {}
         for row in subscribers:
@@ -301,11 +240,6 @@ def admin():
             platform_groups=platform_groups,
             platforms=STREAMING_PLATFORMS
         )
-=======
-        conn.close()
-        count_dict = {row["list"]: row["total"] for row in counts}
-        return render_template("admin.html", subscribers=subscribers, counts=count_dict)
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
     if request.method == "POST":
         password = request.form.get("password", "")
         if password == ADMIN_PASSWORD:
@@ -326,7 +260,6 @@ def admin_send():
         return redirect(url_for("admin"))
     link = request.form.get("link", "").strip()
     target_list = request.form.get("target_list", "sketches")
-<<<<<<< HEAD
     target_platform = request.form.get("target_platform", "all")
     about_text = request.form.get("about_text", "").strip()
 
@@ -352,49 +285,22 @@ def admin_send():
 
     sent = 0
     failed = 0
-    base_url = "https://signup.dougaldridgemusic.com"
-=======
-    if not link:
-        flash("Please enter a link to send.", "error")
-        return redirect(url_for("admin"))
-    conn = get_db_connection()
-    subscribers = conn.execute(
-        "SELECT email FROM subscribers WHERE list = ?", (target_list,)
-    ).fetchall()
-    conn.close()
-    if not subscribers:
-        flash(f"No subscribers on the {target_list} list yet.", "info")
-        return redirect(url_for("admin"))
-    sent = 0
-    failed = 0
-    base_url = request.host_url.rstrip("/")
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
+    base_url = "https://dougaldridgemusicsignup.com"
     for row in subscribers:
         email = row["email"]
         token = get_or_create_token(email)
         unsubscribe_url = f"{base_url}/unsubscribe/{token}"
-<<<<<<< HEAD
         html = build_email_html(link, unsubscribe_url, drop_type=target_list, about_text=about_text)
-=======
-        html = build_email_html(link, unsubscribe_url)
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
         subject = "New sketch just dropped" if target_list == "sketches" else "New release out now"
         if send_email(email, subject, html):
             sent += 1
         else:
             failed += 1
-<<<<<<< HEAD
 
     if failed == 0:
         flash(f"Sent to {sent} subscriber{'s' if sent != 1 else ''}.", "success")
     else:
         flash(f"Sent: {sent}, Failed: {failed}. Check your SendGrid credentials.", "error")
-=======
-    if failed == 0:
-        flash(f"Sent to {sent} subscriber{'s' if sent != 1 else ''}.", "success")
-    else:
-        flash(f"Sent: {sent}, Failed: {failed}. Check your Gmail credentials.", "error")
->>>>>>> 284af6de93f193a29633816e0d78ff79b2451a80
     return redirect(url_for("admin"))
 
 init_db()
