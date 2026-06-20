@@ -206,11 +206,11 @@ body {
 .input-row button:active { transform: scale(0.97); }
 
 .input-row button.btn--muted {
-  background: #2a2a2a;
-  color: var(--text);
+  background: var(--accent);
+  color: #0d0d0d;
 }
 
-.input-row button.btn--muted:hover { background: #333; }
+.input-row button.btn--muted:hover { background: var(--accent-dim); }
 
 /* Platform dropdown (subscriber page) */
 .platform-row {
