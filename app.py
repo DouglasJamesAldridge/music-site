@@ -13,6 +13,7 @@ DATABASE = "subscribers.db"
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme")
 
 STREAMING_PLATFORMS = [
+    "No preference",
     "Spotify",
     "Apple Music",
     "YouTube Music",
@@ -21,7 +22,6 @@ STREAMING_PLATFORMS = [
     "Deezer",
     "Pandora",
     "SoundCloud",
-    "Other / I'll use the link provided",
 ]
 
 def get_db_connection():
@@ -299,6 +299,9 @@ def index():
             list_type = "sketches"
         if not is_valid_email(email):
             flash("That doesn't look like a valid email. Please try again.", "error")
+            return redirect(url_for("index"))
+        if not platform:
+            flash("Please select a platform. If you don't have a preference, select \"No preference\".", "error")
             return redirect(url_for("index"))
 
         conn = get_db_connection()

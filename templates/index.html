@@ -57,8 +57,8 @@
             </div>
             <div class="platform-row">
               <label class="platform-label" for="platform-sketches">Where do you listen to official releases?</label>
-              <select name="platform" id="platform-sketches" class="platform-select">
-                <option value="">Select a platform…</option>
+              <select name="platform" id="platform-sketches" class="platform-select" required>
+                <option value="" disabled selected>Select a platform…</option>
                 {% for p in platforms %}
                   <option value="{{ p }}">{{ p }}</option>
                 {% endfor %}
@@ -109,8 +109,8 @@
             </div>
             <div class="platform-row">
               <label class="platform-label" for="platform-official">Where do you listen to music?</label>
-              <select name="platform" id="platform-official" class="platform-select platform-select--muted">
-                <option value="">Select a platform…</option>
+              <select name="platform" id="platform-official" class="platform-select platform-select--muted" required>
+                <option value="" disabled selected>Select a platform…</option>
                 {% for p in platforms %}
                   <option value="{{ p }}">{{ p }}</option>
                 {% endfor %}
