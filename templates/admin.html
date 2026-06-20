@@ -30,6 +30,38 @@
       {% endif %}
     {% endwith %}
 
+    <!-- New Subscriber Notifications -->
+    {% if new_subscribers %}
+    <div class="notifications-panel">
+      <div class="notifications-header">
+        <p class="notifications-title">🔔 New this week</p>
+        <span class="notifications-count">{{ new_subscribers | length }} new</span>
+      </div>
+      <div class="notifications-list">
+        {% for sub in new_subscribers %}
+        <div class="notification-card">
+          <div class="notification-top">
+            <span class="notification-email">{{ sub['email'] }}</span>
+            <span class="badge {% if sub['list'] == 'sketches' %}badge--sketches{% else %}badge--official{% endif %}">
+              {{ sub['list'].capitalize() }}
+            </span>
+          </div>
+          <div class="notification-meta">
+            <span class="notification-platform">{{ sub['platform'] or 'No platform selected' }}</span>
+            <span class="notification-date">{{ sub['created_at'][:10] }}</span>
+          </div>
+          {% if sub['message'] %}
+          <div class="notification-message">
+            <span class="notification-message-label">Their message:</span>
+            <p class="notification-message-text">{{ sub['message'] }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Summary counts -->
     <div class="admin-counts">
       <div class="count-card">
@@ -51,7 +83,6 @@
       <p class="send-panel-title">Send a drop</p>
       <form method="POST" action="/admin/send">
 
-        <!-- About the Music -->
         <div class="about-music-box">
           <label class="about-music-label" for="about_text">About the music</label>
           <textarea
@@ -64,14 +95,11 @@
           <p class="about-music-hint">Optional — but it drives engagement. Subscribers love context.</p>
         </div>
 
-        <!-- Send row -->
         <div class="send-row">
           <select name="target_list" id="send-target-list" class="send-select" onchange="updatePlatformFilter(this.value)">
             <option value="sketches">Sketches list</option>
             <option value="official">Official list</option>
           </select>
-
-          <!-- Platform filter (only meaningful for official) -->
           <select name="target_platform" id="send-target-platform" class="send-select">
             <option value="all">All platforms</option>
             {% for p in platforms %}
@@ -79,7 +107,6 @@
             {% endfor %}
             <option value="Not specified">Not specified</option>
           </select>
-
           <input
             type="url"
             name="link"
@@ -96,7 +123,7 @@
       </form>
     </div>
 
-    <!-- Platform breakdown (official subscribers only) -->
+    <!-- Platform breakdown -->
     {% if platform_groups %}
     <div class="platform-breakdown">
       <p class="section-label">Official subscribers by platform</p>
@@ -127,6 +154,7 @@
             <th>Email</th>
             <th>List</th>
             <th>Platform</th>
+            <th>Message</th>
             <th>Signed up</th>
           </tr>
         </thead>
@@ -140,6 +168,13 @@
               </span>
             </td>
             <td class="platform-cell">{{ row['platform'] or '—' }}</td>
+            <td class="message-cell">
+              {% if row['message'] %}
+                <span class="message-preview" title="{{ row['message'] }}">{{ row['message'][:60] }}{% if row['message']|length > 60 %}…{% endif %}</span>
+              {% else %}
+                <span style="color: #333;">—</span>
+              {% endif %}
+            </td>
             <td class="date-cell">{{ row['created_at'][:10] }}</td>
           </tr>
           {% endfor %}
@@ -164,7 +199,6 @@
         platformSelect.style.pointerEvents = 'auto';
       }
     }
-    // Run on load to set initial state
     updatePlatformFilter(document.getElementById('send-target-list').value);
   </script>
 </body>

@@ -64,6 +64,16 @@
                 {% endfor %}
               </select>
             </div>
+            <div class="message-row">
+              <label class="platform-label" for="message-sketches">Leave a message for Doug (optional)</label>
+              <textarea
+                name="message"
+                id="message-sketches"
+                class="subscriber-message"
+                placeholder="Say hi, tell me how you found the music, or anything else…"
+                rows="3"
+              ></textarea>
+            </div>
           </div>
         </form>
       </div>
@@ -105,6 +115,16 @@
                   <option value="{{ p }}">{{ p }}</option>
                 {% endfor %}
               </select>
+            </div>
+            <div class="message-row">
+              <label class="platform-label" for="message-official">Leave a message for Doug (optional)</label>
+              <textarea
+                name="message"
+                id="message-official"
+                class="subscriber-message subscriber-message--muted"
+                placeholder="Say hi, tell me how you found the music, or anything else…"
+                rows="3"
+              ></textarea>
             </div>
           </div>
         </form>

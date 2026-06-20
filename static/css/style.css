@@ -608,3 +608,159 @@ body {
   color: var(--text-muted);
   word-break: break-all;
 }
+
+/* ── Subscriber message box (signup page) ── */
+
+.message-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.subscriber-message {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color 0.2s;
+}
+
+.subscriber-message:focus {
+  border-color: var(--accent);
+}
+
+.subscriber-message::placeholder {
+  color: #3a3a3a;
+}
+
+.subscriber-message--muted {
+  border-color: #1e1e1e;
+}
+
+.subscriber-message--muted:focus {
+  border-color: var(--text-muted);
+}
+
+/* ── Admin notifications panel ── */
+
+.notifications-panel {
+  background: #0f1a00;
+  border: 1px solid rgba(200, 255, 0, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(200, 255, 0, 0.15);
+}
+
+.notifications-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.notifications-count {
+  font-size: 0.75rem;
+  background: rgba(200, 255, 0, 0.15);
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notification-card {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(200, 255, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.notification-card:last-child {
+  border-bottom: none;
+}
+
+.notification-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification-email {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.notification-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-platform {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.notification-date {
+  font-size: 0.75rem;
+  color: #444;
+}
+
+.notification-message {
+  margin-top: 0.35rem;
+  background: rgba(200, 255, 0, 0.05);
+  border-left: 2px solid rgba(200, 255, 0, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.notification-message-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(200, 255, 0, 0.6);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.notification-message-text {
+  font-size: 0.85rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Message column in subscriber table */
+.message-cell {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  max-width: 200px;
+}
+
+.message-preview {
+  cursor: default;
+}

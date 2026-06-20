@@ -2,10 +2,7 @@
 import re
 import os
 import sqlite3
-import smtplib
 import secrets
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
@@ -13,9 +10,6 @@ app.secret_key = os.environ.get("SECRET_KEY", "local-dev-fallback")
 
 DATABASE = "subscribers.db"
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme")
-
-GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS", "")
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 
 STREAMING_PLATFORMS = [
     "Spotify",
@@ -42,6 +36,7 @@ def init_db():
             email      TEXT NOT NULL,
             list       TEXT NOT NULL CHECK(list IN ('sketches', 'official')),
             platform   TEXT,
+            message    TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(email, list)
         )
@@ -53,12 +48,13 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    # Add platform column if it doesn't exist (for existing databases)
-    try:
-        conn.execute("ALTER TABLE subscribers ADD COLUMN platform TEXT")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass  # Column already exists
+    # Safe migrations for existing databases
+    for column, definition in [("platform", "TEXT"), ("message", "TEXT")]:
+        try:
+            conn.execute(f"ALTER TABLE subscribers ADD COLUMN {column} {definition}")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
     conn.commit()
     conn.close()
 
@@ -100,6 +96,42 @@ def send_email(to_email, subject, html_body):
         print(f"Failed to send to {to_email}: {e}")
         return False
 
+def build_admin_notification(email, list_type, platform, message):
+    list_name = "Sketches" if list_type == "sketches" else "Official Releases"
+    platform_str = platform if platform else "Not specified"
+    message_block = ""
+    if message:
+        message_block = f"""
+  <div style="background: #1a1a1a; border-left: 3px solid #c8ff00; padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0;">
+    <p style="font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #c8ff00; margin-bottom: 0.5rem;">Message from subscriber</p>
+    <p style="font-size: 0.95rem; color: #ccc; line-height: 1.7; margin: 0;">{message}</p>
+  </div>
+"""
+    return f"""
+<div style="font-family: Georgia, serif; max-width: 540px; margin: 0 auto; padding: 2rem; background: #0d0d0d; color: #e8e8e8;">
+  <p style="font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: #c8ff00; margin-bottom: 1.5rem;">New Subscriber</p>
+  <h1 style="font-size: 2rem; font-weight: normal; line-height: 1.2; margin-bottom: 1.5rem; color: #e8e8e8;">Someone just signed up.</h1>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
+    <tr>
+      <td style="padding: 0.6rem 0; color: #888; font-size: 0.85rem; width: 40%; border-bottom: 1px solid #222;">Email</td>
+      <td style="padding: 0.6rem 0; color: #e8e8e8; font-size: 0.85rem; border-bottom: 1px solid #222;">{email}</td>
+    </tr>
+    <tr>
+      <td style="padding: 0.6rem 0; color: #888; font-size: 0.85rem; width: 40%; border-bottom: 1px solid #222;">List</td>
+      <td style="padding: 0.6rem 0; color: #e8e8e8; font-size: 0.85rem; border-bottom: 1px solid #222;">{list_name}</td>
+    </tr>
+    <tr>
+      <td style="padding: 0.6rem 0; color: #888; font-size: 0.85rem; width: 40%;">Preferred platform</td>
+      <td style="padding: 0.6rem 0; color: #e8e8e8; font-size: 0.85rem;">{platform_str}</td>
+    </tr>
+  </table>
+  {message_block}
+  <a href="https://signup.dougaldridgemusic.com/admin" style="display: inline-block; background: #c8ff00; color: #0d0d0d; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 6px; font-weight: 700; font-family: sans-serif; font-size: 0.9rem;">View in Admin</a>
+  <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
+  <p style="font-size: 0.75rem; color: #555;">This is an automated notification from your music signup site.</p>
+</div>
+"""
+
 def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text=""):
     if drop_type == "sketches":
         eyebrow = "New Sketch"
@@ -130,7 +162,7 @@ def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text="")
   <a href="{link}" style="display: inline-block; background: #c8ff00; color: #0d0d0d; padding: 0.85rem 1.8rem; text-decoration: none; border-radius: 6px; font-weight: 700; font-family: sans-serif; font-size: 0.95rem;">{btn_text}</a>
   <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
   <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
-    You're receiving this because you signed up for updates at dougaldridgemusicsignup.com.<br/>
+    You're receiving this because you signed up for updates at signup.dougaldridgemusic.com.<br/>
     <a href="{unsubscribe_url}" style="color: #555; text-decoration: underline;">Unsubscribe</a>
   </p>
 </div>
@@ -159,7 +191,7 @@ def build_welcome_email(list_type, platform=None):
   </p>
   <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
   <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
-    You signed up for {list_name} updates from Douglas Aldridge at dougaldridgemusicsignup.com.
+    You signed up for {list_name} updates from Douglas Aldridge at signup.dougaldridgemusic.com.
   </p>
 </div>
 """
@@ -170,6 +202,7 @@ def index():
         email = request.form.get("email", "").strip().lower()
         list_type = request.form.get("list_type", "sketches")
         platform = request.form.get("platform", "").strip()
+        message = request.form.get("message", "").strip()
 
         if list_type not in ("sketches", "official"):
             list_type = "sketches"
@@ -180,12 +213,20 @@ def index():
         conn = get_db_connection()
         try:
             conn.execute(
-                "INSERT INTO subscribers (email, list, platform) VALUES (?, ?, ?)",
-                (email, list_type, platform or None)
+                "INSERT INTO subscribers (email, list, platform, message) VALUES (?, ?, ?, ?)",
+                (email, list_type, platform or None, message or None)
             )
             conn.commit()
+
+            # Send welcome email to subscriber
             welcome_html = build_welcome_email(list_type, platform)
             send_email(email, "You're subscribed.", welcome_html)
+
+            # Send admin notification
+            admin_email = os.environ.get("ADMIN_EMAIL", "doug@dougaldridgemusic.com")
+            notification_html = build_admin_notification(email, list_type, platform, message)
+            send_email(admin_email, f"New subscriber: {email}", notification_html)
+
             if list_type == "sketches":
                 flash("You're on the Sketches list. A confirmation email is on its way — if you don't see it, check your spam folder and mark it as safe.", "success")
             else:
@@ -218,11 +259,17 @@ def admin():
     if session.get("admin_logged_in"):
         conn = get_db_connection()
         subscribers = conn.execute(
-            "SELECT email, list, platform, created_at FROM subscribers ORDER BY list, platform, created_at DESC"
+            "SELECT email, list, platform, message, created_at FROM subscribers ORDER BY created_at DESC"
         ).fetchall()
         counts = conn.execute(
             "SELECT list, COUNT(*) as total FROM subscribers GROUP BY list"
         ).fetchall()
+
+        # New subscribers (last 7 days)
+        new_subscribers = conn.execute(
+            "SELECT email, list, platform, message, created_at FROM subscribers WHERE created_at >= datetime('now', '-7 days') ORDER BY created_at DESC"
+        ).fetchall()
+
         # Group official subscribers by platform
         platform_groups = {}
         for row in subscribers:
@@ -231,6 +278,7 @@ def admin():
                 if plat not in platform_groups:
                     platform_groups[plat] = []
                 platform_groups[plat].append(row)
+
         conn.close()
         count_dict = {row["list"]: row["total"] for row in counts}
         return render_template(
@@ -238,7 +286,8 @@ def admin():
             subscribers=subscribers,
             counts=count_dict,
             platform_groups=platform_groups,
-            platforms=STREAMING_PLATFORMS
+            platforms=STREAMING_PLATFORMS,
+            new_subscribers=new_subscribers
         )
     if request.method == "POST":
         password = request.form.get("password", "")
@@ -280,12 +329,12 @@ def admin_send():
     conn.close()
 
     if not subscribers:
-        flash(f"No subscribers found for that selection.", "info")
+        flash("No subscribers found for that selection.", "info")
         return redirect(url_for("admin"))
 
     sent = 0
     failed = 0
-    base_url = "https://dougaldridgemusicsignup.com"
+    base_url = "https://signup.dougaldridgemusic.com"
     for row in subscribers:
         email = row["email"]
         token = get_or_create_token(email)
