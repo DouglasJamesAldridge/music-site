@@ -29,7 +29,6 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-def 
 @app.route("/admin/add-subscriber", methods=["POST"])
 def admin_add_subscriber():
     if not session.get("admin_logged_in"):
@@ -73,7 +72,7 @@ def admin_remove_subscriber():
     conn.close()
     return redirect(url_for("admin"))
 
-init_db():
+def init_db():
     conn = get_db_connection()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
