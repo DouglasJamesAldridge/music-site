@@ -29,7 +29,51 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+def 
+@app.route("/admin/add-subscriber", methods=["POST"])
+def admin_add_subscriber():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin"))
+    email = request.form.get("email", "").strip().lower()
+    list_type = request.form.get("list_type", "sketches")
+    platform = request.form.get("platform", "").strip()
+    if not is_valid_email(email):
+        flash("That doesn't look like a valid email.", "error")
+        return redirect(url_for("admin"))
+    if list_type not in ("sketches", "official"):
+        list_type = "sketches"
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            "INSERT INTO subscribers (email, list, platform) VALUES (?, ?, ?)",
+            (email, list_type, platform or None)
+        )
+        conn.commit()
+        flash(f"Added {email} to the {list_type} list.", "success")
+    except sqlite3.IntegrityError:
+        flash(f"{email} is already on the {list_type} list.", "info")
+    finally:
+        conn.close()
+    return redirect(url_for("admin"))
+
+@app.route("/admin/remove-subscriber", methods=["POST"])
+def admin_remove_subscriber():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin"))
+    email = request.form.get("email", "").strip().lower()
+    list_type = request.form.get("list_type", "").strip()
+    conn = get_db_connection()
+    if list_type:
+        conn.execute("DELETE FROM subscribers WHERE email = ? AND list = ?", (email, list_type))
+        flash(f"Removed {email} from the {list_type} list.", "success")
+    else:
+        conn.execute("DELETE FROM subscribers WHERE email = ?", (email,))
+        flash(f"Removed {email} from all lists.", "success")
+    conn.commit()
+    conn.close()
+    return redirect(url_for("admin"))
+
+init_db():
     conn = get_db_connection()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
@@ -443,6 +487,50 @@ def admin_send():
         flash(f"Sent to {sent} subscriber{'s' if sent != 1 else ''}.", "success")
     else:
         flash(f"Sent: {sent}, Failed: {failed}. Check your SendGrid credentials.", "error")
+    return redirect(url_for("admin"))
+
+
+@app.route("/admin/add-subscriber", methods=["POST"])
+def admin_add_subscriber():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin"))
+    email = request.form.get("email", "").strip().lower()
+    list_type = request.form.get("list_type", "sketches")
+    platform = request.form.get("platform", "").strip()
+    if not is_valid_email(email):
+        flash("That doesn't look like a valid email.", "error")
+        return redirect(url_for("admin"))
+    if list_type not in ("sketches", "official"):
+        list_type = "sketches"
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            "INSERT INTO subscribers (email, list, platform) VALUES (?, ?, ?)",
+            (email, list_type, platform or None)
+        )
+        conn.commit()
+        flash(f"Added {email} to the {list_type} list.", "success")
+    except sqlite3.IntegrityError:
+        flash(f"{email} is already on the {list_type} list.", "info")
+    finally:
+        conn.close()
+    return redirect(url_for("admin"))
+
+@app.route("/admin/remove-subscriber", methods=["POST"])
+def admin_remove_subscriber():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("admin"))
+    email = request.form.get("email", "").strip().lower()
+    list_type = request.form.get("list_type", "").strip()
+    conn = get_db_connection()
+    if list_type:
+        conn.execute("DELETE FROM subscribers WHERE email = ? AND list = ?", (email, list_type))
+        flash(f"Removed {email} from the {list_type} list.", "success")
+    else:
+        conn.execute("DELETE FROM subscribers WHERE email = ?", (email,))
+        flash(f"Removed {email} from all lists.", "success")
+    conn.commit()
+    conn.close()
     return redirect(url_for("admin"))
 
 init_db()

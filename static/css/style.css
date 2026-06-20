@@ -851,3 +851,24 @@ body {
 .archive-section:hover {
   opacity: 1;
 }
+
+/* ── Remove subscriber button ── */
+
+.remove-btn {
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: #555;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 92, 92, 0.1);
+  color: var(--error);
+  border-color: var(--error);
+}

@@ -158,6 +158,35 @@
     </div>
     {% endif %}
 
+    <!-- Add Subscriber Panel -->
+    <div class="send-panel">
+      <p class="send-panel-title" style="color: var(--accent);">+ Add subscriber</p>
+      <form method="POST" action="/admin/add-subscriber">
+        <div class="send-row" style="flex-wrap: wrap; gap: 0.5rem;">
+          <input
+            type="email"
+            name="email"
+            placeholder="email@example.com"
+            required
+            class="send-input"
+            style="min-width: 180px;"
+          />
+          <select name="list_type" class="send-select">
+            <option value="sketches">Sketches</option>
+            <option value="official">Official</option>
+          </select>
+          <select name="platform" class="send-select">
+            <option value="">No platform</option>
+            {% for p in platforms %}
+              <option value="{{ p }}">{{ p }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="send-btn">Add</button>
+        </div>
+        <p class="fine-print" style="margin-top: 0.5rem;">No welcome email is sent when adding manually.</p>
+      </form>
+    </div>
+
     <!-- Subscriber table -->
     {% if subscribers %}
     <div class="table-wrap">
@@ -169,6 +198,7 @@
             <th>Platform</th>
             <th>Message</th>
             <th>Signed up</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -189,6 +219,13 @@
               {% endif %}
             </td>
             <td class="date-cell">{{ row['created_at'][:10] }}</td>
+            <td>
+              <form method="POST" action="/admin/remove-subscriber" onsubmit="return confirm('Remove {{ row['email'] }} from the {{ row['list'] }} list?')">
+                <input type="hidden" name="email" value="{{ row['email'] }}" />
+                <input type="hidden" name="list_type" value="{{ row['list'] }}" />
+                <button type="submit" class="remove-btn">Remove</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
