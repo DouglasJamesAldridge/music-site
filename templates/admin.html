@@ -62,6 +62,33 @@
     </div>
     {% endif %}
 
+    <!-- Listener Feedback -->
+    {% if feedback_rows %}
+    <div class="notifications-panel" style="border-color: rgba(92,184,255,0.25); background: #00101a;">
+      <div class="notifications-header" style="border-color: rgba(92,184,255,0.15);">
+        <p class="notifications-title" style="color: var(--info);">💬 Listener feedback</p>
+        <span class="notifications-count" style="background: rgba(92,184,255,0.12); color: var(--info);">{{ feedback_rows | length }} total</span>
+      </div>
+      <div class="notifications-list">
+        {% for fb in feedback_rows %}
+        <div class="notification-card">
+          <div class="notification-top">
+            <span class="notification-email">{{ fb['email'] }}</span>
+            <span class="feedback-drop-badge">{{ fb['drop_label'] }}</span>
+          </div>
+          <div class="notification-message" style="border-color: rgba(92,184,255,0.3); background: rgba(92,184,255,0.04); margin-top: 0.5rem;">
+            <p class="notification-message-text" style="font-size: 0.9rem; color: #ccc;">{{ fb['feedback'] }}</p>
+          </div>
+          <div class="notification-meta" style="margin-top: 0.35rem;">
+            <span></span>
+            <span class="notification-date">{{ fb['created_at'][:10] }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Summary counts -->
     <div class="admin-counts">
       <div class="count-card">
@@ -83,18 +110,34 @@
       <p class="send-panel-title">Send a drop</p>
       <form method="POST" action="/admin/send">
 
+        <!-- Drop label -->
+        <div class="about-music-box" style="margin-bottom: 0.75rem;">
+          <label class="about-music-label" for="drop_label" style="color: var(--info);">Drop name</label>
+          <input
+            type="text"
+            name="drop_label"
+            id="drop_label"
+            class="send-input"
+            style="width: 100%;"
+            placeholder="e.g. 'Track 3 Sketch — June 2026' or 'Debut EP'"
+          />
+          <p class="about-music-hint">This labels the feedback you receive so you know which drop it's about.</p>
+        </div>
+
+        <!-- About the Music -->
         <div class="about-music-box">
           <label class="about-music-label" for="about_text">About the music</label>
           <textarea
             name="about_text"
             id="about_text"
             class="about-music-textarea"
-            placeholder="Give listeners a sense of what they're about to hear — the mood, the story, what inspired it. This will appear in the email above the listen link."
+            placeholder="Give listeners a sense of what they're about to hear — the mood, the story, what inspired it."
             rows="4"
           ></textarea>
           <p class="about-music-hint">Optional — but it drives engagement. Subscribers love context.</p>
         </div>
 
+        <!-- Send row -->
         <div class="send-row">
           <select name="target_list" id="send-target-list" class="send-select" onchange="updatePlatformFilter(this.value)">
             <option value="sketches">Sketches list</option>
@@ -118,7 +161,7 @@
         </div>
 
         <p class="fine-print" style="margin-top: 0.5rem;">
-          For Official drops, filter by platform to send the matching streaming link to each group.
+          Each subscriber gets a unique feedback link in their email so their comments come back to you tagged with their address.
         </p>
       </form>
     </div>

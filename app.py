@@ -48,7 +48,24 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    # Safe migrations for existing databases
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            email        TEXT NOT NULL,
+            drop_label   TEXT NOT NULL,
+            feedback     TEXT NOT NULL,
+            created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS feedback_tokens (
+            token      TEXT PRIMARY KEY,
+            email      TEXT NOT NULL,
+            drop_label TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Safe migrations
     for column, definition in [("platform", "TEXT"), ("message", "TEXT")]:
         try:
             conn.execute(f"ALTER TABLE subscribers ADD COLUMN {column} {definition}")
@@ -72,6 +89,17 @@ def get_or_create_token(email):
             (token, email)
         )
         conn.commit()
+    conn.close()
+    return token
+
+def create_feedback_token(email, drop_label):
+    token = secrets.token_urlsafe(32)
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO feedback_tokens (token, email, drop_label) VALUES (?, ?, ?)",
+        (token, email, drop_label)
+    )
+    conn.commit()
     conn.close()
     return token
 
@@ -132,7 +160,7 @@ def build_admin_notification(email, list_type, platform, message):
 </div>
 """
 
-def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text=""):
+def build_email_html(link, unsubscribe_url, feedback_url, drop_type="sketches", about_text="", drop_label=""):
     if drop_type == "sketches":
         eyebrow = "New Sketch"
         heading = "Something new just dropped."
@@ -160,6 +188,13 @@ def build_email_html(link, unsubscribe_url, drop_type="sketches", about_text="")
   <p style="font-size: 1rem; color: #aaa; line-height: 1.7; margin-bottom: 1.5rem;">{body_text}</p>
   {about_block}
   <a href="{link}" style="display: inline-block; background: #c8ff00; color: #0d0d0d; padding: 0.85rem 1.8rem; text-decoration: none; border-radius: 6px; font-weight: 700; font-family: sans-serif; font-size: 0.95rem;">{btn_text}</a>
+
+  <div style="margin-top: 3rem; padding: 1.5rem; background: #161616; border: 1px solid #2a2a2a; border-radius: 8px;">
+    <p style="font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 0.5rem;">After you listen</p>
+    <p style="font-size: 1rem; color: #e8e8e8; margin-bottom: 1rem; line-height: 1.5;">What did you think? I'd love to hear it.</p>
+    <a href="{feedback_url}" style="display: inline-block; background: transparent; color: #c8ff00; padding: 0.7rem 1.4rem; text-decoration: none; border-radius: 6px; font-weight: 700; font-family: sans-serif; font-size: 0.88rem; border: 1px solid #c8ff00;">Leave a comment →</a>
+  </div>
+
   <hr style="border: none; border-top: 1px solid #2a2a2a; margin: 3rem 0 1.5rem;" />
   <p style="font-size: 0.75rem; color: #555; line-height: 1.6;">
     You're receiving this because you signed up for updates at signup.dougaldridgemusic.com.<br/>
@@ -217,16 +252,11 @@ def index():
                 (email, list_type, platform or None, message or None)
             )
             conn.commit()
-
-            # Send welcome email to subscriber
             welcome_html = build_welcome_email(list_type, platform)
             send_email(email, "You're subscribed.", welcome_html)
-
-            # Send admin notification
             admin_email = os.environ.get("ADMIN_EMAIL", "doug@dougaldridgemusic.com")
             notification_html = build_admin_notification(email, list_type, platform, message)
             send_email(admin_email, f"New subscriber: {email}", notification_html)
-
             if list_type == "sketches":
                 flash("You're on the Sketches list. A confirmation email is on its way — if you don't see it, check your spam folder and mark it as safe.", "success")
             else:
@@ -237,6 +267,32 @@ def index():
             conn.close()
         return redirect(url_for("index"))
     return render_template("index.html", platforms=STREAMING_PLATFORMS)
+
+@app.route("/feedback/<token>", methods=["GET", "POST"])
+def feedback(token):
+    conn = get_db_connection()
+    row = conn.execute(
+        "SELECT email, drop_label FROM feedback_tokens WHERE token = ?", (token,)
+    ).fetchone()
+    if not row:
+        conn.close()
+        return render_template("feedback.html", state="invalid")
+    email = row["email"]
+    drop_label = row["drop_label"]
+    if request.method == "POST":
+        text = request.form.get("feedback", "").strip()
+        if not text:
+            conn.close()
+            return render_template("feedback.html", state="form", drop_label=drop_label, error="Please write something before submitting.")
+        conn.execute(
+            "INSERT INTO feedback (email, drop_label, feedback) VALUES (?, ?, ?)",
+            (email, drop_label, text)
+        )
+        conn.commit()
+        conn.close()
+        return render_template("feedback.html", state="thanks", drop_label=drop_label)
+    conn.close()
+    return render_template("feedback.html", state="form", drop_label=drop_label)
 
 @app.route("/unsubscribe/<token>")
 def unsubscribe(token):
@@ -264,13 +320,12 @@ def admin():
         counts = conn.execute(
             "SELECT list, COUNT(*) as total FROM subscribers GROUP BY list"
         ).fetchall()
-
-        # New subscribers (last 7 days)
         new_subscribers = conn.execute(
             "SELECT email, list, platform, message, created_at FROM subscribers WHERE created_at >= datetime('now', '-7 days') ORDER BY created_at DESC"
         ).fetchall()
-
-        # Group official subscribers by platform
+        feedback_rows = conn.execute(
+            "SELECT email, drop_label, feedback, created_at FROM feedback ORDER BY created_at DESC"
+        ).fetchall()
         platform_groups = {}
         for row in subscribers:
             if row["list"] == "official":
@@ -278,7 +333,6 @@ def admin():
                 if plat not in platform_groups:
                     platform_groups[plat] = []
                 platform_groups[plat].append(row)
-
         conn.close()
         count_dict = {row["list"]: row["total"] for row in counts}
         return render_template(
@@ -287,7 +341,8 @@ def admin():
             counts=count_dict,
             platform_groups=platform_groups,
             platforms=STREAMING_PLATFORMS,
-            new_subscribers=new_subscribers
+            new_subscribers=new_subscribers,
+            feedback_rows=feedback_rows
         )
     if request.method == "POST":
         password = request.form.get("password", "")
@@ -311,6 +366,7 @@ def admin_send():
     target_list = request.form.get("target_list", "sketches")
     target_platform = request.form.get("target_platform", "all")
     about_text = request.form.get("about_text", "").strip()
+    drop_label = request.form.get("drop_label", "").strip() or "this drop"
 
     if not link:
         flash("Please enter a link to send.", "error")
@@ -339,7 +395,9 @@ def admin_send():
         email = row["email"]
         token = get_or_create_token(email)
         unsubscribe_url = f"{base_url}/unsubscribe/{token}"
-        html = build_email_html(link, unsubscribe_url, drop_type=target_list, about_text=about_text)
+        feedback_token = create_feedback_token(email, drop_label)
+        feedback_url = f"{base_url}/feedback/{feedback_token}"
+        html = build_email_html(link, unsubscribe_url, feedback_url, drop_type=target_list, about_text=about_text, drop_label=drop_label)
         subject = "New sketch just dropped" if target_list == "sketches" else "New release out now"
         if send_email(email, subject, html):
             sent += 1

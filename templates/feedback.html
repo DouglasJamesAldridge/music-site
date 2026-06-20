@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave a comment — Douglas Aldridge Music</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <main class="container">
+
+    {% if state == "invalid" %}
+      <header class="hero">
+        <p class="eyebrow">Hmm</p>
+        <h1 class="headline" style="font-size: 2.2rem;">Link not found.</h1>
+        <p class="subline">This feedback link is invalid or has already expired.</p>
+      </header>
+      <a href="/" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border);">← Back to site</a>
+
+    {% elif state == "thanks" %}
+      <header class="hero">
+        <p class="eyebrow">Thanks</p>
+        <h1 class="headline" style="font-size: 2.2rem;">Got it.</h1>
+        <p class="subline">Doug will see your thoughts on <strong style="color: var(--text);">{{ drop_label }}</strong>. Appreciate you taking the time.</p>
+      </header>
+      <a href="/" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border);">← Back to site</a>
+
+    {% elif state == "form" %}
+      <header class="hero">
+        <p class="eyebrow">{{ drop_label }}</p>
+        <h1 class="headline" style="font-size: 2.4rem;">What did you think?</h1>
+        <p class="subline">Doug reads every message. No wrong answers.</p>
+      </header>
+
+      {% if error %}
+        <div class="messages">
+          <div class="message message--error">{{ error }}</div>
+        </div>
+      {% endif %}
+
+      <div class="card">
+        <form method="POST">
+          <div class="form-stack">
+            <textarea
+              name="feedback"
+              class="feedback-textarea"
+              placeholder="Write anything — first impressions, what it reminded you of, a lyric that stuck, or just a feeling…"
+              rows="6"
+              maxlength="2000"
+              autofocus
+            ></textarea>
+            <p class="about-music-hint" style="text-align: right;" id="char-count">0 / 2000</p>
+            <button type="submit" class="feedback-submit-btn">Send to Doug</button>
+          </div>
+        </form>
+      </div>
+
+      <p class="fine-print">Your comment goes straight to Doug — it won't be published anywhere.</p>
+    {% endif %}
+
+  </main>
+
+  <script>
+    const textarea = document.querySelector('textarea[name="feedback"]');
+    const counter = document.getElementById('char-count');
+    if (textarea && counter) {
+      textarea.addEventListener('input', () => {
+        counter.textContent = textarea.value.length + ' / 2000';
+      });
+    }
+  </script>
+</body>
+</html>
