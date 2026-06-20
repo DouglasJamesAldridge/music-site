@@ -1,0 +1,171 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Subscribers</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <main class="container admin-container">
+
+    <!-- Header -->
+    <div class="admin-header">
+      <div>
+        <p class="eyebrow">Admin</p>
+        <h1 class="headline" style="font-size: 2rem;">Subscribers</h1>
+      </div>
+      <a href="/admin/logout" class="logout-link">Log out</a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages">
+          {% for category, message in messages %}
+            <div class="message message--{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Summary counts -->
+    <div class="admin-counts">
+      <div class="count-card">
+        <p class="count-number">{{ counts.get('sketches', 0) }}</p>
+        <p class="count-label">Sketches</p>
+      </div>
+      <div class="count-card count-card--muted">
+        <p class="count-number">{{ counts.get('official', 0) }}</p>
+        <p class="count-label">Official Only</p>
+      </div>
+      <div class="count-card count-card--total">
+        <p class="count-number">{{ subscribers | length }}</p>
+        <p class="count-label">Total</p>
+      </div>
+    </div>
+
+    <!-- Send Email Panel -->
+    <div class="send-panel">
+      <p class="send-panel-title">Send a drop</p>
+      <form method="POST" action="/admin/send">
+
+        <!-- About the Music -->
+        <div class="about-music-box">
+          <label class="about-music-label" for="about_text">About the music</label>
+          <textarea
+            name="about_text"
+            id="about_text"
+            class="about-music-textarea"
+            placeholder="Give listeners a sense of what they're about to hear — the mood, the story, what inspired it. This will appear in the email above the listen link."
+            rows="4"
+          ></textarea>
+          <p class="about-music-hint">Optional — but it drives engagement. Subscribers love context.</p>
+        </div>
+
+        <!-- Send row -->
+        <div class="send-row">
+          <select name="target_list" id="send-target-list" class="send-select" onchange="updatePlatformFilter(this.value)">
+            <option value="sketches">Sketches list</option>
+            <option value="official">Official list</option>
+          </select>
+
+          <!-- Platform filter (only meaningful for official) -->
+          <select name="target_platform" id="send-target-platform" class="send-select">
+            <option value="all">All platforms</option>
+            {% for p in platforms %}
+              <option value="{{ p }}">{{ p }} only</option>
+            {% endfor %}
+            <option value="Not specified">Not specified</option>
+          </select>
+
+          <input
+            type="url"
+            name="link"
+            placeholder="Paste your link here"
+            required
+            class="send-input"
+          />
+          <button type="submit" class="send-btn">Send</button>
+        </div>
+
+        <p class="fine-print" style="margin-top: 0.5rem;">
+          For Official drops, filter by platform to send the matching streaming link to each group.
+        </p>
+      </form>
+    </div>
+
+    <!-- Platform breakdown (official subscribers only) -->
+    {% if platform_groups %}
+    <div class="platform-breakdown">
+      <p class="section-label">Official subscribers by platform</p>
+      <div class="platform-cards">
+        {% for platform, members in platform_groups.items() | sort %}
+        <div class="platform-card">
+          <div class="platform-card-header">
+            <span class="platform-name">{{ platform }}</span>
+            <span class="platform-count">{{ members | length }}</span>
+          </div>
+          <ul class="platform-email-list">
+            {% for m in members %}
+            <li>{{ m['email'] }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Subscriber table -->
+    {% if subscribers %}
+    <div class="table-wrap">
+      <table class="subscriber-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>List</th>
+            <th>Platform</th>
+            <th>Signed up</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in subscribers %}
+          <tr>
+            <td>{{ row['email'] }}</td>
+            <td>
+              <span class="badge {% if row['list'] == 'sketches' %}badge--sketches{% else %}badge--official{% endif %}">
+                {{ row['list'].capitalize() }}
+              </span>
+            </td>
+            <td class="platform-cell">{{ row['platform'] or '—' }}</td>
+            <td class="date-cell">{{ row['created_at'][:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="empty-state">No subscribers yet.</p>
+    {% endif %}
+
+  </main>
+
+  <script>
+    function updatePlatformFilter(listValue) {
+      const platformSelect = document.getElementById('send-target-platform');
+      if (listValue === 'sketches') {
+        platformSelect.style.opacity = '0.4';
+        platformSelect.style.pointerEvents = 'none';
+        platformSelect.value = 'all';
+      } else {
+        platformSelect.style.opacity = '1';
+        platformSelect.style.pointerEvents = 'auto';
+      }
+    }
+    // Run on load to set initial state
+    updatePlatformFilter(document.getElementById('send-target-list').value);
+  </script>
+</body>
+</html>
