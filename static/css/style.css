@@ -124,7 +124,7 @@ body {
 }
 
 .card--muted .card-freq {
-  color: var(--text-muted);
+  color: var(--accent);
 }
 
 .card-desc {
