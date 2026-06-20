@@ -390,14 +390,23 @@ def admin_send():
         return redirect(url_for("admin"))
 
     conn = get_db_connection()
-    if target_list == "official" and target_platform and target_platform != "all":
-        subscribers = conn.execute(
-            "SELECT email FROM subscribers WHERE list = ? AND (platform = ? OR (platform IS NULL AND ? = 'Not specified'))",
-            (target_list, target_platform, target_platform)
-        ).fetchall()
+    if target_list == "official":
+        # Official drops go to ALL subscribers (both lists), filtered by platform, deduped
+        if target_platform and target_platform != "all":
+            subscribers = conn.execute(
+                """SELECT DISTINCT email FROM subscribers
+                   WHERE (platform = ? OR (platform IS NULL AND ? = 'Not specified'))""",
+                (target_platform, target_platform)
+            ).fetchall()
+        else:
+            # All platforms - every subscriber regardless of list
+            subscribers = conn.execute(
+                "SELECT DISTINCT email FROM subscribers"
+            ).fetchall()
     else:
+        # Sketches drops go to sketches list only
         subscribers = conn.execute(
-            "SELECT email FROM subscribers WHERE list = ?", (target_list,)
+            "SELECT email FROM subscribers WHERE list = 'sketches'"
         ).fetchall()
 
     if not subscribers:
